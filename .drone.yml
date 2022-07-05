@@ -1,0 +1,66 @@
+kind: pipeline
+type: docker
+name: drone-laravel-CICD
+
+platform:
+  os: linux
+  arch: amd64
+
+steps:
+- name: restore-cache
+  image: drillster/drone-volume-cache
+  volumes:
+  - name: cache
+    path: /cache
+  settings:
+    restore: true
+    mount:
+      - ./vendor
+      
+- name: phpunit
+  pull: if-not-exists
+  image: laradock/workspace:2.5-7.3
+  environment:      
+  commands:
+  - php -v
+  - composer -V
+  - cp .env.example .env
+  - composer install 
+  - php artisan key:generate
+  - ./vendor/bin/phpunit tests
+
+- name: rebuild-cache
+  image: drillster/drone-volume-cache
+  volumes:
+  - name: cache
+    path: /cache
+  settings:
+    rebuild: true
+    mount:
+      - ./vendor
+
+- name: olivershell
+  pull: if-not-exists
+  image: oliverkuo/olivershell
+  settings:
+    github_repo:
+      from_secret: github_repo
+    github_key:
+      from_secret: github_key
+    ip:
+      from_secret: ip
+    user: ubuntu
+    website: drone-cicd-laravel-demo
+  when:
+    status: [ success ]
+    branch : [ master ]
+
+volumes:
+  - name: cache
+    host: 
+      path: /tmp/cache    
+    
+trigger:
+  branch:
+  - master
+  - dev
