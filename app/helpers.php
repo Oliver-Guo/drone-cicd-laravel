@@ -9,3 +9,8 @@ function subtraction(int $a, int $b): int
 {
     return $a - $b;
 }
+
+function multiplication(int $a, int $b): int
+{
+    return $a * $b;
+}

@@ -33,6 +33,22 @@ class CalculateTest extends TestCase
         $actual = subtraction($a, $b);
 
         $this->assertEquals(12, $actual);
+
+        return $actual;
+    }
+
+    /**
+     * @group Calculate
+     * @depends testSubtraction
+     */
+    public function testMultiplication(int $value)
+    {
+        $a = $value;
+        $b = 5;
+
+        $actual = multiplication($a, $b);
+
+        $this->assertEquals(60, $actual);
     }
 
 }
